@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>SYSTEM QUEST: MONARCH</title>
+    
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#030303">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap');
+
+        :root {
+            --primary: #00f2ff;
+            --secondary: #0062ff;
+            --bg: #030303;
+            --card: rgba(13, 17, 23, 0.98);
+            --gold: #ffcc00;
+            --danger: #ff4d4d;
+            --text: #ffffff;
+            --border-glow: rgba(0, 242, 255, 0.3);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg);
+            background-image: radial-gradient(circle at center, #001a33 0%, #030303 100%);
+            color: var(--text);
+            margin: 0; padding: 0;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100vh;
+        }
+
+        .system-window {
+            width: 100%; max-width: 500px;
+            background: var(--card);
+            border: 2px solid var(--primary);
+            box-shadow: 0 0 40px var(--border-glow);
+            position: relative; margin: 20px 0; padding-bottom: 20px;
+        }
+
+        .header-top {
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            padding: 15px; text-align: center;
+            font-family: 'Orbitron'; font-weight: 900; letter-spacing: 5px; color: #000;
+        }
+
+        .rank-display { font-family: 'Orbitron'; font-size: 3.5rem; color: var(--primary); text-shadow: 0 0 20px var(--primary); margin: 50px 0 10px; text-align: center; }
+
+        .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px; margin-bottom: 20px; }
+        .status-box { background: rgba(0, 242, 255, 0.05); border: 1px solid rgba(0, 242, 255, 0.2); padding: 12px; }
+        .status-box label { font-size: 11px; color: #888; display: block; font-family: 'Orbitron'; }
+        .status-box span { font-family: 'Orbitron'; color: var(--primary); font-size: 14px; }
+
+        .quest-card { margin: 20px; border: 1px solid var(--primary); background: rgba(0,0,0,0.6); padding: 20px; position: relative; min-height: 350px;}
+        .focus-tag { background: var(--primary); color: #000; font-family: 'Orbitron'; font-size: 10px; padding: 4px 12px; position: absolute; top: -12px; left: 15px; font-weight: bold; }
+
+        .video-box { width: 100%; padding-top: 56.25%; position: relative; background: #000; border: 1px solid rgba(0, 242, 255, 0.3); margin: 15px 0; }
+        .video-box iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+
+        .progress-bar { height: 10px; background: #000; border: 1px solid #333; margin: 20px 0; border-radius: 5px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--secondary), var(--primary)); width: 0%; transition: 0.3s; }
+
+        .btn { width: 100%; background: rgba(0, 242, 255, 0.05); border: 2px solid var(--primary); color: var(--primary); padding: 16px; font-family: 'Orbitron'; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.2s;}
+        .btn:hover:not(:disabled) { background: var(--primary); color: #000; box-shadow: 0 0 20px var(--primary); }
+        .btn:disabled { border-color: #333; color: #333 !important; cursor: not-allowed; opacity: 0.5; background: #111; }
+
+        input, select { background: #000; border: 1px solid var(--primary); color: white; padding: 14px; margin: 8px 0; width: 100%; font-family: 'Orbitron'; }
+        .hidden { display: none !important; }
+
+        /* RECOVERY AREA */
+        .recovery-mode { 
+            background: rgba(255, 77, 77, 0.15); 
+            border: 1px solid var(--danger); 
+            color: var(--danger); 
+            padding: 20px; 
+            margin: 10px 20px; 
+            text-align: center;
+        }
+        .timer-font { font-family: 'Orbitron'; font-size: 2rem; font-weight: 900; color: var(--gold); text-shadow: 0 0 10px var(--gold); display: block; margin-top: 10px; }
+    </style>
+</head>
+<body>
+
+    <div id="screen-setup" class="system-window" style="padding: 30px; margin-top: 40px;">
+        <h1 style="font-family: 'Orbitron'; color: var(--primary); text-align: center;">[ DESPERTAR ]</h1>
+        <input type="text" id="in-name" placeholder="NOME DO CAÇADOR">
+        <div style="display: flex; gap: 10px;">
+            <input type="number" id="in-weight" placeholder="PESO (KG)">
+            <input type="number" id="in-height" placeholder="ALTURA (CM)">
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <input type="number" id="in-age" placeholder="IDADE">
+            <select id="in-gender"><option value="m">MASCULINO</option><option value="f">FEMININO</option></select>
+        </div>
+        <input type="number" id="in-test" placeholder="TESTE: MÁX FLEXÕES">
+        <button class="btn" style="margin-top: 20px;" onclick="awake()">INICIALIZAR</button>
+        <button class="btn" style="margin-top: 10px; font-size: 10px; border-color: #444;" onclick="document.getElementById('file-in').click()">IMPORTAR GRIMÓRIO (.JSON)</button>
+        <input type="file" id="file-in" class="hidden" accept=".json" onchange="importData(event)">
+    </div>
+
+    <div id="screen-sched" class="system-window hidden" style="padding: 30px; margin-top: 40px;">
+        <h2 style="font-family:'Orbitron'; color:var(--gold); text-align:center;">CRONOGRAMA</h2>
+        <select id="in-days-choice">
+            <option value="3">3 DIAS (FULL BODY)</option>
+            <option value="4">4 DIAS (UPPER/LOWER)</option>
+            <option value="5">5 DIAS (PPL + CORE)</option>
+            <option value="6">6 DIAS (PPL 2X)</option>
+        </select>
+        <button class="btn" style="margin-top: 20px;" onclick="saveSchedule()">CONFIRMAR JORNADA</button>
+    </div>
+
+    <div id="screen-app" class="system-window hidden">
+        <div class="header-top">SYSTEM STATUS ONLINE</div>
+        <div class="rank-display" id="st-rank">RANK E</div>
+        <h3 id="st-name" style="text-align: center; font-family: 'Orbitron'; margin: 0; letter-spacing: 2px;">JOGADOR</h3>
+        
+        <div class="status-grid">
+            <div class="status-box"><label>DIA</label><span id="st-day">1</span></div>
+            <div class="status-box"><label>XP TOTAL</label><span id="st-xp">0</span></div>
+            <div class="status-box"><label>META KCAL</label><span id="st-cal">0</span></div>
+            <div class="status-box"><label>ÁGUA/DIA</label><span id="st-water">0L</span></div>
+        </div>
+
+        <div id="cooldown-area" class="recovery-mode hidden">
+            <span style="font-family: 'Orbitron'; font-size: 11px;">[ ALERTA: FADIGA MUSCULAR ]</span>
+            <p style="margin: 5px 0; font-size: 13px;">RECUPERAÇÃO ATÉ MEIA-NOITE:</p>
+            <span id="countdown" class="timer-font">00:00:00</span>
+        </div>
+
+        <div id="quest-area" class="quest-card">
+            <div class="focus-tag" id="st-focus">OBJECTIVE</div>
+            <h3 id="ex-name" style="font-family: 'Orbitron'; color: #fff; margin: 5px 0; font-size: 1.2rem;">---</h3>
+            <div class="video-box" id="vid-frame"></div>
+            <div id="ex-sets-info" style="font-size: 13px; color: var(--primary); font-family: 'Orbitron'; margin-top: 10px;">SÉRIE: 1/3</div>
+            <div class="progress-bar"><div id="progress" class="progress-fill"></div></div>
+            <button class="btn" id="btn-action" onclick="handleStep()">CONCLUIR SÉRIE</button>
+        </div>
+        
+        <div style="display:flex; gap:10px; padding: 0 20px;">
+            <button class="btn" style="font-size:10px; padding:10px;" onclick="exportData()">EXPORTAR BACKUP</button>
+            <button class="btn" style="font-size:10px; padding:10px; border-color:var(--danger); color:var(--danger);" onclick="if(confirm('Resetar sistema?')){localStorage.clear();location.reload();}">RESET</button>
+        </div>
+    </div>
+
+    <script>
+        const library = {
+            push: [{n:"Flexão Padrão", id:"IODxDxX7oi4"},{n:"Flexão Diamante", id:"GZ9j3V2O1pM"},{n:"Pike Pushup", id:"sposDXWEB0A"}],
+            pull: [{n:"Canoinha", id:"vN_jT_O_P8Y"},{n:"Prancha", id:"pSHjTRCQxIw"},{n:"Lombar Superman", id:"vN_jT_O_P8Y"}],
+            legs: [{n:"Agachamento", id:"aclHkVaku9U"},{n:"Afundo", id:"QOVaHwmZ7Qg"},{n:"Elevação Pélvica", id:"h8U0vX_C_mU"}]
+        };
+
+        let state = JSON.parse(localStorage.getItem('monarch_v_final_state')) || {
+            user: null, sched: null, xp: 0, currDay: 1, lastDate: "", idx: 0, sets: 0
+        };
+
+        let timerInterval;
+
+        function awake() {
+            const n = document.getElementById('in-name').value;
+            const w = parseFloat(document.getElementById('in-weight').value);
+            const h = parseFloat(document.getElementById('in-height').value);
+            const a = parseInt(document.getElementById('in-age').value);
+            const g = document.getElementById('in-gender').value;
+            const t = parseInt(document.getElementById('in-test').value);
+
+            if(!n || !w || !h || !a) return alert("Dados incompletos.");
+            let bmr = (10 * w) + (6.25 * h) - (5 * a) + (g === 'm' ? 5 : -161);
+            state.user = { name: n, w, h, cal: Math.floor(bmr * 1.5), water: (w * 0.040).toFixed(1) };
+            state.xp = t > 20 ? 400 : 0;
+            save();
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-sched').classList.remove('hidden');
+        }
+
+        function saveSchedule() {
+            state.sched = parseInt(document.getElementById('in-days-choice').value);
+            save();
+            render();
+        }
+
+        function render() {
+            if(!state.user) return;
+            if(!state.sched) {
+                document.getElementById('screen-setup').classList.add('hidden');
+                document.getElementById('screen-sched').classList.remove('hidden');
+                return;
+            }
+            
+            document.getElementById('screen-setup').classList.add('hidden');
+            document.getElementById('screen-sched').classList.add('hidden');
+            document.getElementById('screen-app').classList.remove('hidden');
+
+            document.getElementById('st-name').innerText = state.user.name.toUpperCase();
+            document.getElementById('st-day').innerText = state.currDay;
+            document.getElementById('st-xp').innerText = state.xp;
+            document.getElementById('st-cal').innerText = state.user.cal;
+            document.getElementById('st-water').innerText = state.user.water + "L";
+
+            const lvl = Math.floor(state.xp / 500) + 1;
+            document.getElementById('st-rank').innerText = lvl > 10 ? "RANK S" : (lvl > 5 ? "RANK B" : "RANK E");
+
+            checkLock();
+        }
+
+        function checkLock() {
+            const today = new Date().toDateString();
+            const isLocked = state.lastDate === today;
+            
+            document.getElementById('cooldown-area').classList.toggle('hidden', !isLocked);
+            document.getElementById('btn-action').disabled = isLocked;
+            document.getElementById('quest-area').style.opacity = isLocked ? "0.2" : "1";
+
+            if (isLocked) {
+                document.getElementById('ex-name').innerText = "QUEST COMPLETA";
+                document.getElementById('vid-frame').innerHTML = "";
+                startTimer();
+            } else {
+                clearInterval(timerInterval);
+                loadExercise();
+            }
+        }
+
+        function startTimer() {
+            function update() {
+                const now = new Date();
+                const nextDay = new Date();
+                nextDay.setHours(24, 0, 0, 0); // Define Meia-noite (00:00:00)
+                
+                const diff = nextDay.getTime() - now.getTime();
+
+                if (diff <= 0) {
+                    clearInterval(timerInterval);
+                    state.lastDate = ""; // Libera o dia no state
+                    save();
+                    location.reload();
+                    return;
+                }
+
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                
+                document.getElementById('countdown').innerText = 
+                    `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+            }
+            update();
+            timerInterval = setInterval(update, 1000);
+        }
+
+        function loadExercise() {
+            const types = ['push', 'pull', 'legs'];
+            let type = state.sched <= 3 ? types[state.idx % 3] : types[(state.currDay - 1) % 3];
+            document.getElementById('st-focus').innerText = "FOCO: " + type.toUpperCase();
+            const pool = library[type];
+            const ex = pool[state.idx % pool.length];
+            document.getElementById('ex-name').innerText = ex.n;
+            document.getElementById('ex-sets-info').innerText = `SÉRIE: ${state.sets + 1}/3`;
+            document.getElementById('vid-frame').innerHTML = `<iframe src="https://www.youtube-nocookie.com/embed/${ex.id}?autoplay=1&mute=1&playlist=${ex.id}&loop=1"></iframe>`;
+        }
+
+        function handleStep() {
+            const today = new Date().toDateString();
+            if(state.lastDate === today) return;
+
+            state.sets++;
+            state.xp += 40;
+            document.getElementById('progress').style.width = (state.sets * 33.3) + "%";
+            document.getElementById('ex-sets-info').innerText = `SÉRIE: ${state.sets + 1}/3`;
+
+            if (state.sets >= 3) {
+                state.sets = 0;
+                state.idx++;
+                document.getElementById('progress').style.width = "0%";
+                if (state.idx >= 3) {
+                    state.idx = 0;
+                    state.currDay++;
+                    state.lastDate = today;
+                    save();
+                    render();
+                    return;
+                }
+            }
+            save();
+            render();
+        }
+
+        function save() { localStorage.setItem('monarch_v_final_state', JSON.stringify(state)); }
+
+        function exportData() {
+            const blob = new Blob([JSON.stringify(state)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `backup_monarca.json`;
+            a.click();
+        }
+
+        function importData(e) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                state = JSON.parse(event.target.result);
+                save(); location.reload();
+            };
+            reader.readAsText(e.target.files[0]);
+        }
+
+        if(state.user) render();
+    </script>
+</body>
+</html>
